@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+  "id": "doing",
+  "name": "doing",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.3",
+  "description": "A plugin that help you remember what you are doing.",
+  "author": "rooyca",
+  "authorUrl": "https://github.com/rooyca",
+  "fundingUrl": "https://paypal.me/rooyca",
+  "isDesktopOnly": true
 }
