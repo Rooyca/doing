@@ -1,7 +1,7 @@
 {
   	"name": "doing",
   	"version": "1.0.0",
-  	"description": "A plugin that help you remember what you are doing.",
+  	"description": "It helps you remember what you were doing.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
