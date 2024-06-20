@@ -30,7 +30,7 @@ export default class DoingPlugin extends Plugin {
     this.statusBarIcon = this.addStatusBarItem();
     this.statusBarIcon.addClass("mod-clickable");
 
-    this.statusBarIcon.setAttribute("aria-label", "Doing");
+    setTooltip(this.statusBarIcon, 'Doing');
     this.statusBarIcon.setAttribute("data-tooltip-position", "top");
 
     setIcon(this.statusBarIcon, "panel-bottom-close");

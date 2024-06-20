@@ -10,19 +10,10 @@ export class DoingSettingTab extends PluginSettingTab {
     this.plugin = plugin;
   }
 
-  // TODO
-  // ADD MAX LENGTH TITLE STATUS
-  // ADD TEXT WHEN NOT DOING ANYTHING
-
   display(): void {
     const { containerEl } = this;
-    containerEl.empty();
-    containerEl.createEl("h1", { text: "Doing" });
-    containerEl.createEl("p", { text: "Created by " }).createEl("a", {
-      text: "rooyca ⚒️",
-      href: "https://github.com/rooyca",
-    });
-    containerEl.createEl("h2", { text: "Plugin Settings" });
+
+    containerEl.createEl("h2", { text: "Status-bar" });
 
     const legthDoingTextSetting = new Setting(containerEl);
     legthDoingTextSetting
