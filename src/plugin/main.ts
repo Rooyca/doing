@@ -1,4 +1,4 @@
-import { Plugin, setIcon } from "obsidian";
+import { Plugin, setIcon, setTooltip } from "obsidian";
 import doingMenu from "src/ui/doingMenu";
 import { DoingSettingTab } from "src/settings/settingsTab";
 import { DoingSettings, DEFAULT_SETTINGS } from "src/settings/settingsData";

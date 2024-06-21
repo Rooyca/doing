@@ -13,8 +13,6 @@ export class DoingSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
 
-    containerEl.createEl("h2", { text: "Status-bar" });
-
     const legthDoingTextSetting = new Setting(containerEl);
     legthDoingTextSetting
       .setName("Max length status-bar")
