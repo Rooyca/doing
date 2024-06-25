@@ -32,6 +32,10 @@ export default class NowDoingModal extends Modal {
     doingTitleSetting
       .setName("I'm...")
 
+    doingTitleValue.inputEl.onkeydown = (e) => {
+      if (e.key === "Enter") doAdd();
+    };
+
     const doAdd = async () => {
       let doingName = doingTitleValue.getValue();
       if (doingName) {
@@ -40,7 +44,8 @@ export default class NowDoingModal extends Modal {
           await createDoing(Tfile, doingName);
           doingName = await updateTitleBar(Tfile, doingName);
           DoingPlugin.instance.updateStatusBar(doingName);
-      } else new Notice("Missing name for file");
+          doingTitleValue.setValue("");
+      } else new Notice("Missing task title!");
     };
     const saveButton = new ButtonComponent(contentEl)
       .setButtonText("Create")
