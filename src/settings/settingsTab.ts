@@ -1,5 +1,5 @@
 import type DoingPlugin from "src/plugin/main";
-import { App, Setting, PluginSettingTab, TextComponent } from "obsidian";
+import { App, Setting, PluginSettingTab, TextComponent, ToggleComponent } from "obsidian";
 
 export class DoingSettingTab extends PluginSettingTab {
   plugin: DoingPlugin;
@@ -12,6 +12,7 @@ export class DoingSettingTab extends PluginSettingTab {
 
   display(): void {
     const { containerEl } = this;
+    containerEl.empty();
 
     const legthDoingTextSetting = new Setting(containerEl);
     legthDoingTextSetting
@@ -44,6 +45,21 @@ export class DoingSettingTab extends PluginSettingTab {
       .setValue(this.plugin.settings.notDoingText)
       .onChange(async (value) => {
         this.plugin.settings.notDoingText = value;
+        this.plugin.saveSettings();
+      });
+
+    const workingOnLastTask = new Setting(containerEl);
+    workingOnLastTask
+      .setName("Working on last task")
+      .setDesc(
+        "If enabled, the most recent task will be display in the status bar."
+      );
+
+    const workingOnLastTaskContent = new ToggleComponent(workingOnLastTask.controlEl)
+    workingOnLastTaskContent
+      .setValue(this.plugin.settings.workingOnLastTask)
+      .onChange(async (value) => {
+        this.plugin.settings.workingOnLastTask = value;
         this.plugin.saveSettings();
       });
   }

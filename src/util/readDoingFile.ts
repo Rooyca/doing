@@ -6,9 +6,32 @@ export const filename = 'doing.md';
 
 export async function readDoingFile(file: TFile) {
   if (!file) return;
-  const fileContents = await this.app.vault.read(file);
-  const lastLineMatch = fileContents.match(/- \[( |PAUSED)\] .*$/m);
-  return lastLineMatch;
+  const workingOnLastTask = DoingPlugin.instance.settings.workingOnLastTask;
+  const fileContents = await this.app.vault.read(file).then((data) => data.trim());
+  let lastTask;
+  let regex = /- \[( |PAUSED)\] (.*)$/m;
+
+  if (workingOnLastTask) {
+    const pausedRegex = /- \[PAUSED\] (.*)$/gm;
+    const uncompletedRegex = /- \[ \] (.*)$/gm;
+
+    const pausedMatch = [...fileContents.matchAll(pausedRegex)].pop();
+    const uncompletedMatch = [...fileContents.matchAll(uncompletedRegex)].pop();
+
+    if (pausedMatch) {
+      lastTask = pausedMatch[0];
+      regex = /- \[PAUSED\] (.*)$/m;
+    } else if (uncompletedMatch) {
+      lastTask = uncompletedMatch[0];
+      regex = /- \[ \] (.*)$/m;
+    }
+  } else {
+    const match = fileContents.match(regex);
+    if (match) {
+      lastTask = match[0];
+    }
+  }
+  return lastTask;
 }
 
 export async function updateTaskStatus(pauseButton: ButtonComponent, file: TFile, taskPaused: boolean) {
@@ -26,10 +49,15 @@ export async function updateTaskStatus(pauseButton: ButtonComponent, file: TFile
 export async function createDoing(file: TFile, doingName: string) {
   const now = new Date();
   const time = now.toLocaleTimeString();
-  const fileCont = `- [ ] ${doingName} (${time})\n`;
+  const fileCont = `\n- [ ] ${doingName} (${time})`;
   if (!file) {
     this.app.vault.create(filename, fileCont);
-  } else this.app.vault.append(file!, fileCont);
+  } else {
+    this.app.vault.append(file, fileCont);
+    const fileContents = await this.app.vault.read(file);
+    const cleanedContents = fileContents.split('\n').filter(line => line.match(/- \[.*?\] .*$/)).join('\n');
+    this.app.vault.modify(file, cleanedContents);
+  }
 }
 
 export function setTaskPaused(value: boolean) {
@@ -39,9 +67,8 @@ export function setTaskPaused(value: boolean) {
 export async function updateTitleBar(Tfile: TFile, titleBar: string) {
   try {
     const lastLine = await readDoingFile(Tfile);
-    const str = lastLine[0]
     const regex = /- \[ \] (.*?) \((.*)\)/;
-    const match = str.match(regex);
+    const match = lastLine.match(regex);
           
     if (match) {
       titleBar = match[1];

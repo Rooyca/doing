@@ -30,22 +30,55 @@ export default function doingMenu() {
           new Notice("No task to modify");
           return;
         }
-        const fileContents = await this.app.vault.read(Tfile);
-        const newContent = fileContents.replace(/- \[( |PAUSED)\] (.*)$/m, `- [${newStatus}] $2`);
-        
-        if (fileContents === newContent) {
-          new Notice("No task to modify");
-          return;
-        }
-        
-        await this.app.vault.modify(Tfile, newContent);
-        new Notice(noticeMessage);
-        pauseButton.setIcon(icon).setTooltip(tooltip);
-        let titleBar = noticeMessage;
-        titleBar = await updateTitleBar(Tfile, titleBar);
 
-        DoingPlugin.instance.updateStatusBar(titleBar);
+        const fileContents = await this.app.vault.read(Tfile).then((data) => data.trim());
+        const workingOnLastTask = DoingPlugin.instance.settings.workingOnLastTask;
+        let lastTask = "";
+        let regex = /- \[( |PAUSED)\] (.*)$/m;
+
+        if (workingOnLastTask) {
+          const pausedRegex = /- \[PAUSED\] (.*)$/gm;
+          const uncompletedRegex = /- \[ \] (.*)$/gm;
+
+          const pausedMatch = [...fileContents.matchAll(pausedRegex)].pop();
+          const uncompletedMatch = [...fileContents.matchAll(uncompletedRegex)].pop();
+
+          if (pausedMatch) {
+            lastTask = pausedMatch[0];
+            regex = /- \[PAUSED\] (.*)$/m;
+          } else if (uncompletedMatch) {
+            lastTask = uncompletedMatch[0];
+            regex = /- \[ \] (.*)$/m;
+          }
+        } else {
+          const match = fileContents.match(regex);
+          if (match) {
+            lastTask = match[0];
+          }
+        }
+
+        if (lastTask) {
+          const lentLast = lastTask.match(regex);
+          if (!lentLast) return;
+          const lent = lentLast.length;
+          const updatedTask = lastTask.replace(regex, `- [${newStatus}] $${lent-1}`);
+          const newContent = fileContents.replace(lastTask, updatedTask);
+
+          if (fileContents !== newContent) {
+            await this.app.vault.modify(Tfile, newContent);
+            new Notice(noticeMessage);
+            pauseButton.setIcon(icon).setTooltip(tooltip);
+            let titleBar = noticeMessage;
+            titleBar = await updateTitleBar(Tfile, titleBar);
+            DoingPlugin.instance.updateStatusBar(titleBar);
+          } else {
+            new Notice("No task to modify");
+          }
+        } else {
+          new Notice("No task to modify");
+        }
       }
+
 
       pauseButton.onClick(async (e: any) => {
         if (taskPaused) {
