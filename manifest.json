@@ -4,8 +4,7 @@
   "version": "2.0.0",
   "minAppVersion": "0.15.3",
   "description": "It helps you remember what you were doing.",
-  "author": "rooyca",
-  "authorUrl": "https://github.com/rooyca",
-  "fundingUrl": "https://paypal.me/rooyca",
+  "author": "Jack Chronicle",
+  "authorUrl": "https://github.com/Jack-Chronicle",
   "isDesktopOnly": false
 }
