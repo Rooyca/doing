@@ -1,5 +1,4 @@
-import { ButtonComponent } from "obsidian";
-import { TFile } from "obsidian";
+import { ButtonComponent, TFile, Vault } from "obsidian";
 import DoingPlugin from "src/plugin/main";
 
 export let taskPaused = false;
@@ -51,12 +50,10 @@ export async function createDoing(file: TFile, doingName: string) {
   const time = now.toLocaleTimeString();
   const fileCont = `\n- [ ] ${doingName} (${time})`;
   if (!file) {
-    this.app.vault.create(DoingPlugin.instance.settings.filename, fileCont);
+    await this.app.vault.create(DoingPlugin.instance.settings.filename, fileCont);
   } else {
-    this.app.vault.append(file, fileCont);
-    const fileContents = await this.app.vault.read(file);
-    const cleanedContents = fileContents.split('\n').filter((line: string) => line.match(/- \[.*?\] .*$/)).join('\n');
-    this.app.vault.modify(file, cleanedContents);
+    await this.app.vault.append(file, fileCont);
+    // No cleaning, no modifying existing content.
   }
 }
 
