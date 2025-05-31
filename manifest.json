@@ -1,11 +1,11 @@
 {
   "id": "doing",
   "name": "doing",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "minAppVersion": "0.15.3",
   "description": "It helps you remember what you were doing.",
   "author": "rooyca",
   "authorUrl": "https://github.com/rooyca",
   "fundingUrl": "https://paypal.me/rooyca",
-  "isDesktopOnly": true
+  "isDesktopOnly": false
 }

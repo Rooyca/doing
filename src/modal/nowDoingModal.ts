@@ -5,7 +5,7 @@ import {
   ButtonComponent,
   Notice,
 } from "obsidian";
-import { filename, createDoing, updateTitleBar } from "src/util/readDoingFile";
+import { createDoing, updateTitleBar } from "src/util/readDoingFile";
 import DoingPlugin from "src/plugin/main";
 
 export default class NowDoingModal extends Modal {
@@ -40,8 +40,9 @@ export default class NowDoingModal extends Modal {
       let doingName = doingTitleValue.getValue();
       if (doingName) {
           new Notice("Your task has been created!");
+          const filename = DoingPlugin.instance.settings.filename;
           const Tfile = this.app.vault.getFileByPath(filename);
-          await createDoing(Tfile, doingName);
+          await createDoing(Tfile, doingName, filename); // add filename if createDoing needs it
           doingName = await updateTitleBar(Tfile, doingName);
           DoingPlugin.instance.updateStatusBar(doingName);
           doingTitleValue.setValue("");

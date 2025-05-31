@@ -1,7 +1,7 @@
 import { Menu, ButtonComponent, Notice } from "obsidian";
 import NowDoingModal from "src/modal/nowDoingModal";
 import { EnhancedMenu, EnhancedMenuItem } from "src/settings/type";
-import { updateTaskStatus, filename, taskPaused, setTaskPaused, updateTitleBar } from "src/util/readDoingFile";
+import { updateTaskStatus, taskPaused, setTaskPaused, updateTitleBar } from "src/util/readDoingFile";
 import DoingPlugin from "src/plugin/main"; 
 
 export default function doingMenu() {
@@ -23,6 +23,7 @@ export default function doingMenu() {
       const addButton = new ButtonComponent(actionsDom);
       const viewButton = new ButtonComponent(actionsDom);
 
+      const filename = DoingPlugin.instance.settings.filename;
       const Tfile = this.app.vault.getFileByPath(filename);
 
       async function modifyTaskStatus(newStatus: string, noticeMessage: string, icon: string, tooltip: string) {
@@ -31,7 +32,7 @@ export default function doingMenu() {
           return;
         }
 
-        const fileContents = await this.app.vault.read(Tfile).then((data) => data.trim());
+        const fileContents = await DoingPlugin.instance.app.vault.read(Tfile).then((data) => data.trim());
         const workingOnLastTask = DoingPlugin.instance.settings.workingOnLastTask;
         let lastTask = "";
         let regex = /- \[( |PAUSED)\] (.*)$/m;
@@ -61,7 +62,7 @@ export default function doingMenu() {
           const lentLast = lastTask.match(regex);
           if (!lentLast) return;
           const lent = lentLast.length;
-          const updatedTask = lastTask.replace(regex, `- [${newStatus}] $${lent-1}`);
+          const updatedTask = lastTask.replace(regex, `- [${newStatus}] $2`); 
           const newContent = fileContents.replace(lastTask, updatedTask);
 
           if (fileContents !== newContent) {
@@ -109,7 +110,7 @@ export default function doingMenu() {
         .setIcon("eye")
         .setTooltip("View tasks")
         .onClick((e: any) => {
-          this.app.workspace.activeLeaf.openFile(this.app.vault.getAbstractFileByPath(filename));
+          this.app.workspace.activeLeaf.openFile(this.app.vault.getAbstractFileByPath(DoingPlugin.instance.settings.filename));
         });
 
       updateTaskStatus(pauseButton, Tfile, taskPaused);

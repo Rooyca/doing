@@ -2,7 +2,6 @@ import { ButtonComponent } from "obsidian";
 import DoingPlugin from "src/plugin/main";
 
 export let taskPaused = false;
-export const filename = 'doing.md';
 
 export async function readDoingFile(file: TFile) {
   if (!file) return;
@@ -51,7 +50,7 @@ export async function createDoing(file: TFile, doingName: string) {
   const time = now.toLocaleTimeString();
   const fileCont = `\n- [ ] ${doingName} (${time})`;
   if (!file) {
-    this.app.vault.create(filename, fileCont);
+    this.app.vault.create(DoingPlugin.instance.settings.filename, fileCont);
   } else {
     this.app.vault.append(file, fileCont);
     const fileContents = await this.app.vault.read(file);
