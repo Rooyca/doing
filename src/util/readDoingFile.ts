@@ -48,12 +48,19 @@ export async function updateTaskStatus(pauseButton: ButtonComponent, file: TFile
 export async function createDoing(file: TFile, doingName: string) {
   const now = new Date();
   const time = now.toLocaleTimeString();
-  const fileCont = `\n- [ ] ${doingName} (${time})`;
+  const date = now.toLocaleDateString();
+  const format = DoingPlugin.instance.settings.taskFormat || "- [ ] {{task}} ({{time}})";
+
+  // Replace placeholders
+  const fileCont = "\n" + format
+    .replace("{{task}}", doingName)
+    .replace("{{time}}", time)
+    .replace("{{date}}", date);
+
   if (!file) {
     await this.app.vault.create(DoingPlugin.instance.settings.filename, fileCont);
   } else {
     await this.app.vault.append(file, fileCont);
-    // No cleaning, no modifying existing content.
   }
 }
 

@@ -76,6 +76,17 @@ export class DoingSettingTab extends PluginSettingTab {
         })
       );
 
+      new Setting(containerEl)
+        .setName("Task Format")
+        .setDesc("Customize how your tasks are formatted. Use {{task}} for the task name and {{time}} for the time.")
+        .addText((text: TextComponent) =>
+          text
+            .setValue(this.plugin.settings.taskFormat)
+            .onChange(async (value: string) => {
+              this.plugin.settings.taskFormat = value;
+              await this.plugin.saveSettings();
+            })
+        );
 
   }
 }

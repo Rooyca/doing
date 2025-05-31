@@ -3,6 +3,7 @@ export interface DoingSettings {
   lengthDoingText: string;
   workingOnLastTask: boolean;
   filename: string;
+  taskFormat: string;
 }
 
 export const DEFAULT_SETTINGS: DoingSettings = {
@@ -10,4 +11,5 @@ export const DEFAULT_SETTINGS: DoingSettings = {
   lengthDoingText: "",
   workingOnLastTask: false,
   filename: "doing.md",
+  taskFormat: "- [ ] {{task}} ({{time}})",
 };
