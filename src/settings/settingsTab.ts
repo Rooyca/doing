@@ -63,16 +63,19 @@ export class DoingSettingTab extends PluginSettingTab {
         this.plugin.saveSettings();
       });
 
-    const fileLocationSetting = new import_obsidian3.Setting(containerEl);
-    fileLocationSetting.setName("Task File Location")
-      .setDesc("Set the path to your task file (e.g., Log/Journal/Blocks/Quests.md).");
+    // Add before or after your other settings:
+    new Setting(containerEl)
+      .setName("Task File Location")
+      .setDesc("Path to your task file (e.g., Log/Journal/Blocks/Quests.md).")
+      .addText(text => text
+        .setPlaceholder("Enter file path here")
+        .setValue(this.plugin.settings.filename)
+        .onChange(async (value) => {
+          this.plugin.settings.filename = value;
+          await this.plugin.saveSettings();
+        })
+      );
 
-    const fileLocationInput = new import_obsidian3.TextComponent(fileLocationSetting.controlEl);
-    fileLocationInput.setValue(this.plugin.settings.filename)
-      .onChange(async (value) => {
-        this.plugin.settings.filename = value;
-        await this.plugin.saveSettings();
-      });
 
   }
 }

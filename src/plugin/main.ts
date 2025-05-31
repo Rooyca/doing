@@ -37,7 +37,7 @@ export default class DoingPlugin extends Plugin {
 
     let titleBar = "Doing(?)";
     const file = this.app.vault.getFileByPath(this.settings.filename);
-    titleBar = await updateTitleBar(file, titleBar);
+    if (file) titleBar = await updateTitleBar(file, titleBar);
 
     this.statusBarText = this.statusBarIcon.createEl("span", { text: titleBar, cls: "status-bar-text" });
 

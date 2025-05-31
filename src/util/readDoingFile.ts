@@ -1,4 +1,5 @@
 import { ButtonComponent } from "obsidian";
+import { TFile } from "obsidian";
 import DoingPlugin from "src/plugin/main";
 
 export let taskPaused = false;
@@ -6,7 +7,7 @@ export let taskPaused = false;
 export async function readDoingFile(file: TFile) {
   if (!file) return;
   const workingOnLastTask = DoingPlugin.instance.settings.workingOnLastTask;
-  const fileContents = await this.app.vault.read(file).then((data) => data.trim());
+  const fileContents = await this.app.vault.read(file).then((data: string) => data.trim());
   let lastTask;
   let regex = /- \[( |PAUSED)\] (.*)$/m;
 
@@ -54,7 +55,7 @@ export async function createDoing(file: TFile, doingName: string) {
   } else {
     this.app.vault.append(file, fileCont);
     const fileContents = await this.app.vault.read(file);
-    const cleanedContents = fileContents.split('\n').filter(line => line.match(/- \[.*?\] .*$/)).join('\n');
+    const cleanedContents = fileContents.split('\n').filter((line: string) => line.match(/- \[.*?\] .*$/)).join('\n');
     this.app.vault.modify(file, cleanedContents);
   }
 }

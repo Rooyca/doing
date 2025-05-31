@@ -42,8 +42,8 @@ export default class NowDoingModal extends Modal {
           new Notice("Your task has been created!");
           const filename = DoingPlugin.instance.settings.filename;
           const Tfile = this.app.vault.getFileByPath(filename);
-          await createDoing(Tfile, doingName, filename); // add filename if createDoing needs it
-          doingName = await updateTitleBar(Tfile, doingName);
+          if (Tfile) await createDoing(Tfile, doingName);
+          if (Tfile) doingName = await updateTitleBar(Tfile, doingName);
           DoingPlugin.instance.updateStatusBar(doingName);
           doingTitleValue.setValue("");
       } else new Notice("Missing task title!");
