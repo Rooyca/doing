@@ -8,6 +8,7 @@ export default function doingMenu() {
   const windowX = window.innerWidth;
   const windowY = window.innerHeight;
   const menuExists = document.querySelector(".menu.Doing-statusbar-menu");
+  const pausedMarker = DoingPlugin.instance.settings.pausedMarker || "PAUSED";
 
   if (!menuExists) {
     const menu = new Menu() as unknown as EnhancedMenu;
@@ -35,10 +36,10 @@ export default function doingMenu() {
         const fileContents = await DoingPlugin.instance.app.vault.read(Tfile).then((data) => data.trim());
         const workingOnLastTask = DoingPlugin.instance.settings.workingOnLastTask;
         let lastTask = "";
-        let regex = /- \[( |PAUSED)\] (.*)$/m;
+        let regex = new RegExp(`- \\[( |${pausedMarker})\\] (.*)$`, "m");
 
         if (workingOnLastTask) {
-          const pausedRegex = /- \[PAUSED\] (.*)$/gm;
+          const pausedRegex = new RegExp(`- \\[${pausedMarker}\\] (.*)$`, "gm");
           const uncompletedRegex = /- \[ \] (.*)$/gm;
 
           const pausedMatch = [...fileContents.matchAll(pausedRegex)].pop();
@@ -46,7 +47,7 @@ export default function doingMenu() {
 
           if (pausedMatch) {
             lastTask = pausedMatch[0];
-            regex = /- \[PAUSED\] (.*)$/m;
+            regex = new RegExp(`- \\[${pausedMarker}\\] (.*)$`, "m");
           } else if (uncompletedMatch) {
             lastTask = uncompletedMatch[0];
             regex = /- \[ \] (.*)$/m;
@@ -86,7 +87,7 @@ export default function doingMenu() {
           await modifyTaskStatus(" ", "Task resumed", "pause", "Pause task");
           setTaskPaused(false);
         } else {
-          await modifyTaskStatus("PAUSED", "Task paused", "play", "Resume task");
+          await modifyTaskStatus(pausedMarker, "Task paused", "play", "Resume task");
           setTaskPaused(true);
         }
       });

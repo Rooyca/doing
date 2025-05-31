@@ -63,10 +63,44 @@ export class DoingSettingTab extends PluginSettingTab {
         this.plugin.saveSettings();
       });
 
-    // Add before or after your other settings:
+      // Custom Task Paused Marker
+      new Setting(containerEl)
+        .setName("Paused Task Marker")
+        .setDesc("Customize the tag/text that marks a task as paused (e.g., PAUSED, ZZZ, ON HOLD, '/', etc.)")
+        .addText(text => 
+          text
+            .setValue(this.plugin.settings.pausedMarker)
+            .onChange(async (value) => {
+              this.plugin.settings.pausedMarker = value || "PAUSED";
+              await this.plugin.saveSettings();
+            })
+        );
+
+      // Date & Time Format Options
+      new Setting(containerEl)
+        .setName("Date Format")
+        .setDesc("Customize the date format (e.g., YYYY-MM-DD). See dayjs docs for tokens.")
+        .addText(text => text
+          .setValue(this.plugin.settings.dateFormat)
+          .onChange(async (value) => {
+            this.plugin.settings.dateFormat = value;
+            await this.plugin.saveSettings();
+          }));
+
+      new Setting(containerEl)
+        .setName("Time Format")
+        .setDesc("Customize the time format (e.g., HH:mm:ss). See dayjs docs for tokens.")
+        .addText(text => text
+          .setValue(this.plugin.settings.timeFormat)
+          .onChange(async (value) => {
+            this.plugin.settings.timeFormat = value;
+            await this.plugin.saveSettings();
+          }));
+
+    // Task File Location
     new Setting(containerEl)
       .setName("Task File Location")
-      .setDesc("Path to your task file (e.g., Log/Journal/Blocks/Quests.md).")
+      .setDesc("Path to your task file (e.g., Example/Tasks/doing.md).")
       .addText(text => text
         .setPlaceholder("Enter file path here")
         .setValue(this.plugin.settings.filename)
@@ -76,9 +110,10 @@ export class DoingSettingTab extends PluginSettingTab {
         })
       );
 
+      // Task Format
       new Setting(containerEl)
         .setName("Task Format")
-        .setDesc("Customize how your tasks are formatted. Use {{task}} for the task name and {{time}} for the time.")
+        .setDesc("Customize how your tasks are formatted. Available Options are: {{task}} {{time}} and {{date}}")
         .addText((text: TextComponent) =>
           text
             .setValue(this.plugin.settings.taskFormat)

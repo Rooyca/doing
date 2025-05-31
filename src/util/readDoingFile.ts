@@ -1,4 +1,5 @@
 import { ButtonComponent, TFile, Vault } from "obsidian";
+import dayjs from "dayjs";
 import DoingPlugin from "src/plugin/main";
 
 export let taskPaused = false;
@@ -8,10 +9,11 @@ export async function readDoingFile(file: TFile) {
   const workingOnLastTask = DoingPlugin.instance.settings.workingOnLastTask;
   const fileContents = await this.app.vault.read(file).then((data: string) => data.trim());
   let lastTask;
-  let regex = /- \[( |PAUSED)\] (.*)$/m;
+  const pausedMarker = DoingPlugin.instance.settings.pausedMarker || "PAUSED";
+  let regex = new RegExp(`- \\[( |${pausedMarker})\\] (.*)$`, "m");
 
   if (workingOnLastTask) {
-    const pausedRegex = /- \[PAUSED\] (.*)$/gm;
+    const pausedRegex = new RegExp(`- \\[${pausedMarker}\\] (.*)$`, "gm");
     const uncompletedRegex = /- \[ \] (.*)$/gm;
 
     const pausedMatch = [...fileContents.matchAll(pausedRegex)].pop();
@@ -19,7 +21,7 @@ export async function readDoingFile(file: TFile) {
 
     if (pausedMatch) {
       lastTask = pausedMatch[0];
-      regex = /- \[PAUSED\] (.*)$/m;
+      regex = new RegExp(`- \\[${pausedMarker}\\] (.*)$`, "m");
     } else if (uncompletedMatch) {
       lastTask = uncompletedMatch[0];
       regex = /- \[ \] (.*)$/m;
@@ -35,9 +37,10 @@ export async function readDoingFile(file: TFile) {
 
 export async function updateTaskStatus(pauseButton: ButtonComponent, file: TFile, taskPaused: boolean) {
   const lastLineMatch = await readDoingFile(file);
+  const pausedMarker = DoingPlugin.instance.settings.pausedMarker || "PAUSED";
   pauseButton.setIcon("pause").setTooltip("Pause task");
         
-  if (lastLineMatch && lastLineMatch[0].includes("[PAUSED]")) {
+  if (lastLineMatch && lastLineMatch[0].includes(`[${pausedMarker}]`)) {
     taskPaused = true;
     pauseButton.setIcon("play").setTooltip("Resume task");
   } else if (lastLineMatch && lastLineMatch[0].includes("[ ]")) {
@@ -46,16 +49,19 @@ export async function updateTaskStatus(pauseButton: ButtonComponent, file: TFile
 }
 
 export async function createDoing(file: TFile, doingName: string) {
-  const now = new Date();
-  const time = now.toLocaleTimeString();
-  const date = now.toLocaleDateString();
-  const format = DoingPlugin.instance.settings.taskFormat || "- [ ] {{task}} ({{time}})";
+  const now = dayjs();
+  const dateFormat = DoingPlugin.instance.settings.dateFormat || "YYYY-MM-DD";
+  const timeFormat = DoingPlugin.instance.settings.timeFormat || "HH:mm:ss";
+
+  const formattedDate = now.format(dateFormat);
+  const formattedTime = now.format(timeFormat);
+  const format = DoingPlugin.instance.settings.taskFormat || "- [ ] {{task}} {{time}})";
 
   // Replace placeholders
   const fileCont = "\n" + format
     .replace("{{task}}", doingName)
-    .replace("{{time}}", time)
-    .replace("{{date}}", date);
+    .replace("{{date}}", formattedDate)
+    .replace("{{time}}", formattedTime);
 
   if (!file) {
     await this.app.vault.create(DoingPlugin.instance.settings.filename, fileCont);
