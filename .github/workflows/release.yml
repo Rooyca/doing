@@ -1,4 +1,4 @@
-name: Build and Release
+name: release
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   packages: write
+
 
 jobs:
   build:
