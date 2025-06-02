@@ -1,0 +1,122 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build plugin
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-build
+          path: |
+            main.js
+            manifest.json
+            package.json
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: plugin-build
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Get current version
+        id: get_version
+        run: |
+          VERSION=$(jq -r .version package.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get previous release version
+        id: get_prev_version
+        run: |
+          PREV_VERSION=$(git tag --sort=-v:refname | head -n1)
+          echo "prev_version=$PREV_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compare version values
+        id: compare_versions
+        run: |
+          if [ "${{ steps.get_version.outputs.version }}" = "${{ steps.get_prev_version.outputs.prev_version }}" ]; then
+            echo "identical=true" >> $GITHUB_OUTPUT
+          else
+            echo "identical=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Bump patch version if identical
+        if: steps.compare_versions.outputs.identical == 'true'
+        id: bump_version
+        run: |
+          VERSION=$(jq -r .version package.json)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          PATCH=$((PATCH+1))
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          jq --arg v "$NEW_VERSION" '.version=$v' package.json > package.json.tmp && mv package.json.tmp package.json
+          jq --arg v "$NEW_VERSION" '.version=$v' manifest.json > manifest.json.tmp && mv manifest.json.tmp manifest.json
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Use new version if changed
+        if: steps.compare_versions.outputs.identical != 'true'
+        id: use_new_version
+        run: |
+          VERSION=$(jq -r .version package.json)
+          jq --arg v "$VERSION" '.version=$v' manifest.json > manifest.json.tmp && mv manifest.json.tmp manifest.json
+          echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Commit and push version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json manifest.json
+          git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new_version || steps.use_new_version.outputs.new_version }}" || echo "No changes to commit"
+          git tag -f ${{ steps.bump_version.outputs.new_version || steps.use_new_version.outputs.new_version }}
+          git push origin master --follow-tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.bump_version.outputs.new_version || steps.use_new_version.outputs.new_version }}
+          name: ${{ steps.bump_version.outputs.new_version || steps.use_new_version.outputs.new_version }}
+          files: |
+            main.js
+            manifest.json
+            package.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
