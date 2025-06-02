@@ -26,6 +26,5 @@ esbuild.build({
 	treeShaking: true,
 	outfile: "main.js",
 	platform: "node",
-	sourcemap: false,
 	minify: false,
 });
