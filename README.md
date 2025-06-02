@@ -1,7 +1,5 @@
 # 📋 Doing
 
-![doing](doing.jpg)
-
 ## 🎉 Introduction
 
 This is an updated version of the original Doing plugin made by [Rooyca](https://github.com/rooyca/doing)

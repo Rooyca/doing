@@ -13,7 +13,7 @@ export default class NowDoingModal extends Modal {
   doingEl: HTMLDivElement;
 
   constructor() {
-    super(app);
+    super((window as any).app);
     this.onOpen = () => this.display(true);
   }
 
