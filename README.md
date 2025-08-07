@@ -9,13 +9,7 @@ Welcome to **Doing**, an Obsidian plugin designed to help you keep track of what
 ## 🚀 Features
 
 - 📌 **Task Display**: Shows the current task in the status bar for easy reference.
-- 📝 **Task Logging**: Stores all tasks in a `doing.md` file for future reference.
-
-## 🛠️ Installation
-
-1. **Download**: Get the latest version from the [GitHub releases page](https://github.com/rooyca/doing/releases).
-2. **Install**: Copy the plugin folder to your Obsidian plugins directory (`<vault>/.obsidian/plugins/`).
-3. **Enable**: Open Obsidian, go to `Settings > Community Plugins`, and enable the plugin.
+- 📝 **Task Logging**: Stores all tasks in a file for future reference.
 
 ## 📖 Usage
 

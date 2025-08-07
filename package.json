@@ -1,6 +1,6 @@
 {
   	"name": "doing",
-  	"version": "1.0.2",
+  	"version": "1.0.3",
   	"description": "It helps you remember what you were doing.",
 	"main": "main.js",
 	"scripts": {

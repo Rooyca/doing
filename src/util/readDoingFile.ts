@@ -1,12 +1,11 @@
-import { ButtonComponent } from "obsidian";
+import { ButtonComponent, normalizePath } from "obsidian";
 import DoingPlugin from "src/plugin/main";
 
 export let taskPaused = false;
-export const filename = 'doing.md';
 
 export async function readDoingFile(file: TFile) {
   if (!file) return;
-  const workingOnLastTask = DoingPlugin.instance.settings.workingOnLastTask;
+  const workingOnLastTask = DoingPlugin.instance.settings.workingOnLastTask || false;
   const fileContents = await this.app.vault.read(file).then((data) => data.trim());
   let lastTask;
   let regex = /- \[( |PAUSED)\] (.*)$/m;
@@ -34,11 +33,15 @@ export async function readDoingFile(file: TFile) {
   return lastTask;
 }
 
+export const getFilename = (): string => {
+    return DoingPlugin.instance?.settings?.filenamePath || "doing.md";
+};
+
 export async function updateTaskStatus(pauseButton: ButtonComponent, file: TFile, taskPaused: boolean) {
   const lastLineMatch = await readDoingFile(file);
   pauseButton.setIcon("pause").setTooltip("Pause task");
         
-  if (lastLineMatch && lastLineMatch[0].includes("[PAUSED]")) {
+  if (lastLineMatch && lastLineMatch.includes("[PAUSED]")) {
     taskPaused = true;
     pauseButton.setIcon("play").setTooltip("Resume task");
   } else if (lastLineMatch && lastLineMatch[0].includes("[ ]")) {
@@ -51,7 +54,14 @@ export async function createDoing(file: TFile, doingName: string) {
   const time = now.toLocaleTimeString();
   const fileCont = `\n- [ ] ${doingName} (${time})`;
   if (!file) {
-    this.app.vault.create(filename, fileCont);
+    const filePath = normalizePath(getFilename());
+    const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
+
+    if (dirPath && !this.app.vault.getAbstractFileByPath(dirPath)) {
+        await this.app.vault.createFolder(dirPath);
+    }
+    
+    await this.app.vault.create(filePath, fileCont);
   } else {
     this.app.vault.append(file, fileCont);
     const fileContents = await this.app.vault.read(file);

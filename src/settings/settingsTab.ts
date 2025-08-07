@@ -48,6 +48,23 @@ export class DoingSettingTab extends PluginSettingTab {
         this.plugin.saveSettings();
       });
 
+    const filenamePathSetting = new Setting(containerEl);
+    filenamePathSetting
+      .setName("Path to the 'doing' file")
+      .setDesc(
+        "Set the path to the file where tasks are stored. ('doing.md' by default)"
+      );
+
+    const filenamePathContent = new TextComponent(
+      filenamePathSetting.controlEl
+    );
+    filenamePathContent
+      .setValue(this.plugin.settings.filenamePath)
+      .onChange(async (value) => {
+        this.plugin.settings.filenamePath = value;
+        this.plugin.saveSettings();
+      });
+
     const workingOnLastTask = new Setting(containerEl);
     workingOnLastTask
       .setName("Working on last task")

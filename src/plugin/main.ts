@@ -3,7 +3,7 @@ import doingMenu from "src/ui/doingMenu";
 import { DoingSettingTab } from "src/settings/settingsTab";
 import { DoingSettings, DEFAULT_SETTINGS } from "src/settings/settingsData";
 import NowDoingModal from "src/modal/nowDoingModal";
-import { updateTitleBar, filename } from "src/util/readDoingFile";
+import { updateTitleBar, getFilename } from "src/util/readDoingFile";
 
 export default class DoingPlugin extends Plugin {
   static instance: DoingPlugin;
@@ -36,7 +36,7 @@ export default class DoingPlugin extends Plugin {
     setIcon(this.statusBarIcon, "panel-bottom-close");
 
     let titleBar = "Doing(?)";
-    const file = this.app.vault.getFileByPath(filename);
+    const file = this.app.vault.getFileByPath(getFilename());
     titleBar = await updateTitleBar(file, titleBar);
 
     this.statusBarText = this.statusBarIcon.createEl("span", { text: titleBar, cls: "status-bar-text" });

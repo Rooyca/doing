@@ -1,7 +1,7 @@
 import { Menu, ButtonComponent, Notice } from "obsidian";
 import NowDoingModal from "src/modal/nowDoingModal";
 import { EnhancedMenu, EnhancedMenuItem } from "src/settings/type";
-import { updateTaskStatus, filename, taskPaused, setTaskPaused, updateTitleBar } from "src/util/readDoingFile";
+import { updateTaskStatus, getFilename, taskPaused, setTaskPaused, updateTitleBar } from "src/util/readDoingFile";
 import DoingPlugin from "src/plugin/main"; 
 
 export default function doingMenu() {
@@ -23,7 +23,7 @@ export default function doingMenu() {
       const addButton = new ButtonComponent(actionsDom);
       const viewButton = new ButtonComponent(actionsDom);
 
-      const Tfile = this.app.vault.getFileByPath(filename);
+      const Tfile = this.app.vault.getFileByPath(getFilename());
 
       async function modifyTaskStatus(newStatus: string, noticeMessage: string, icon: string, tooltip: string) {
         if (!Tfile) {
@@ -32,7 +32,7 @@ export default function doingMenu() {
         }
 
         const fileContents = await this.app.vault.read(Tfile).then((data) => data.trim());
-        const workingOnLastTask = DoingPlugin.instance.settings.workingOnLastTask;
+        const workingOnLastTask = DoingPlugin.instance.settings.workingOnLastTask || false;
         let lastTask = "";
         let regex = /- \[( |PAUSED)\] (.*)$/m;
 
@@ -109,7 +109,7 @@ export default function doingMenu() {
         .setIcon("eye")
         .setTooltip("View tasks")
         .onClick((e: any) => {
-          this.app.workspace.activeLeaf.openFile(this.app.vault.getAbstractFileByPath(filename));
+          this.app.workspace.activeLeaf.openFile(this.app.vault.getAbstractFileByPath(getFilename()));
         });
 
       updateTaskStatus(pauseButton, Tfile, taskPaused);
